@@ -55,7 +55,10 @@ contract RelayerHub is IRelayerHub, System, IParamSubscriber {
     event relayerUpdated(address _from, address _to);  // @dev deprecated
     event relayerAddedProvisionally(address _relayer);  // @dev deprecated
 
-    function init() external onlyNotInit {
+    // onlyCoinbase / onlyZeroGasPrice: initialised by the protocol from SystemAddress at the
+    // deploy height, so the gate is inert on the legitimate path and stops an ordinary
+    // transaction from flipping alreadyInit first.
+    function init() external onlyNotInit onlyCoinbase onlyZeroGasPrice {
         requiredDeposit = INIT_REQUIRED_DEPOSIT;
         dues = INIT_DUES;
         alreadyInit = true;

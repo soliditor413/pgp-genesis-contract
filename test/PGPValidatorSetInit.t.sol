@@ -25,15 +25,16 @@ import "forge-std/Test.sol";
  *      same system transactions. `onlyNotInit` is the only thing standing between that
  *      and a silently doubled validator set.
  *
- * @dev Why a bare deployment is enough.
+ * @dev Why a bare deployment is enough -- once setUp pins two values.
  *
- *      `init` touches exactly four things: `currentValidatorSet`, `currentValidatorSetMap`,
- *      `numOfCabinets`, `alreadyInit`. It reads no other system contract and no
- *      `block.coinbase` / `tx.gasprice` (those modifiers are on `deposit` and
- *      `updateValidatorSetV2`, not on `init`). So `deployCode` on a blank forge VM is a
- *      faithful environment, and it avoids the `Deployer.sol` harness which asserts
- *      `block.chainid == 56` and etches 17 contracts at fixed addresses -- none of which
- *      `init` looks at.
+ *      `init` touches exactly four storage slots: `currentValidatorSet`,
+ *      `currentValidatorSetMap`, `numOfCabinets`, `alreadyInit`. It reads no other system
+ *      contract. It does read `block.coinbase` and `tx.gasprice`, but only through the
+ *      onlyCoinbase / onlyZeroGasPrice gates, so `setUp` pins both to the values the node
+ *      uses (coinbase == msg.sender, gasprice == 0) and the body is then exercised exactly
+ *      as the deploy height exercises it. That keeps `deployCode` on a blank forge VM
+ *      faithful, and avoids the `Deployer.sol` harness which asserts `block.chainid == 56`
+ *      and etches 17 contracts at fixed addresses -- none of which `init` looks at.
  *
  *      Cross-version note: this file is ^0.8.10 while BSCValidatorSet.sol is 0.6.4, so the
  *      contract is referenced through a hand-written interface and obtained via
@@ -79,6 +80,13 @@ contract PGPValidatorSetInitTest is Test {
     bytes internal payload;
 
     function setUp() public {
+        // The node initialises from SystemAddress with block.coinbase == SystemAddress and a
+        // zero gas price; core/pgp_systemcontract_deploy.go builds its own block context for
+        // exactly this reason. A direct call in a forge test comes from this contract, so
+        // pinning coinbase to it reproduces the legitimate path instead of the gate.
+        vm.coinbase(address(this));
+        vm.txGasPrice(0);
+
         // Fresh contract per test: these assertions are about storage transitions, so a
         // shared instance would make every test depend on execution order.
         validatorSet = IBSCValidatorSetInit(deployCode("BSCValidatorSet.sol"));
@@ -316,6 +324,85 @@ contract PGPValidatorSetInitTest is Test {
     }
 
     /*//////////////////////////////////////////////////////////////
+                    F-03: the caller gate and the size cap
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice An ordinary transaction cannot call init, even with the right calldata.
+    /// @dev This is the whole point of the gate: at the deploy height the protocol has
+    ///      already run init before any transaction is executed, so a plain user call can
+    ///      only ever be an attempt to get there first. Whoever wins that race fixes the
+    ///      validator set for good -- `alreadyInit` cannot be undone and `_setProtector`
+    ///      style governance is not available on this contract.
+    function testInitRejectsNonCoinbaseCaller() public {
+        vm.coinbase(address(0xBEEF));
+
+        vm.prank(address(0xCAFE));
+        vm.expectRevert(bytes("the message sender must be the block producer"));
+        validatorSet.init(payload, 6);
+    }
+
+    /// @notice Even the block producer cannot call init inside a priced transaction.
+    /// @dev onlyCoinbase alone would be satisfied by any validator including this call in
+    ///      its own block; onlyZeroGasPrice is what makes it a system call rather than
+    ///      something a producer can hide among user transactions.
+    function testInitRejectsNonZeroGasPrice() public {
+        vm.txGasPrice(1);
+
+        vm.expectRevert(bytes("gasprice is not zero"));
+        validatorSet.init(payload, 6);
+    }
+
+    /// @notice A rejected caller must leave the contract retryable.
+    /// @dev Modifiers run before the body, so a gate rejection writes nothing. Pinned
+    ///      because the opposite -- flipping alreadyInit and then failing -- would turn a
+    ///      blocked attacker into a permanently uninitialisable contract.
+    function testRejectedCallerLeavesContractRetryable() public {
+        vm.coinbase(address(0xBEEF));
+        vm.prank(address(0xCAFE));
+        vm.expectRevert(bytes("the message sender must be the block producer"));
+        validatorSet.init(payload, 6);
+
+        assertFalse(validatorSet.alreadyInit(), "a rejected caller must not consume the init");
+        assertEq(validatorSet.getValidators().length, 0, "a rejected caller must store nothing");
+
+        vm.coinbase(address(this));
+        validatorSet.init(payload, 6);
+        assertTrue(validatorSet.alreadyInit(), "the legitimate call still has to work");
+    }
+
+    /// @notice A set larger than 255 is rejected.
+    /// @dev The node writes the count into a single byte of the header extra field
+    ///      (`append(header.Extra, byte(len(newValidators)))`), so 256 wraps to 0 and the
+    ///      header can never be parsed back. pgpinit refuses to encode such a payload
+    ///      (maxPGPGenesisValidators = 255); this asserts the contract refuses it too, so a
+    ///      second encoder written later cannot slip past.
+    function testInitRejectsOversizedSet() public {
+        uint256 n = 256;
+        // Minimal legal 4-tuple: [consensus, fee, bbcFee, votingPower] = 64 bytes.
+        bytes memory one = _rlpList(
+            abi.encodePacked(
+                hex"94",
+                devnetValidators[0],
+                hex"94",
+                devnetValidators[0],
+                hex"94",
+                devnetValidators[0],
+                hex"01"
+            )
+        );
+        bytes memory all = new bytes(one.length * n);
+        for (uint256 i; i < n; ++i) {
+            for (uint256 j; j < one.length; ++j) {
+                all[i * one.length + j] = one[j];
+            }
+        }
+        bytes memory body = abi.encodePacked(hex"80", _rlpList(all));
+
+        vm.expectRevert(bytes("validator set too large"));
+        validatorSet.init(_rlpList(body), n);
+    }
+
+    /*//////////////////////////////////////////////////////////////
                     G6: the mainnet-sized set through init
     //////////////////////////////////////////////////////////////*/
 
@@ -366,14 +453,18 @@ contract PGPValidatorSetInitTest is Test {
         return string(abi.encodePacked("pgp-devnet-validator-", i < 10 ? "0" : "", _toString(i)));
     }
 
-    /// @dev Minimal RLP list encoder for bodies up to 255 bytes -- enough for the
-    ///      hand-built malformed payloads above, and deliberately not a general one.
+    /// @dev Minimal RLP list encoder. Handles bodies up to 65535 bytes, which covers the
+    ///      hand-built malformed payloads above and the 256-seat oversize case (16,896
+    ///      bytes); deliberately not a general RLP implementation.
     function _rlpList(bytes memory body) internal pure returns (bytes memory) {
-        require(body.length <= 0xff, "body too long for this helper");
         if (body.length <= 55) {
             return abi.encodePacked(bytes1(uint8(0xc0 + body.length)), body);
         }
-        return abi.encodePacked(hex"f8", uint8(body.length), body);
+        if (body.length <= 0xff) {
+            return abi.encodePacked(hex"f8", uint8(body.length), body);
+        }
+        require(body.length <= 0xffff, "body too long for this helper");
+        return abi.encodePacked(hex"f9", uint16(body.length), body);
     }
 
     function _at(string memory prefix, uint256 i) internal pure returns (string memory) {

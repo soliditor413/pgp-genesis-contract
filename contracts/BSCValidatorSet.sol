@@ -158,12 +158,33 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
      *        WARNING: element ORDER is consensus-critical -- reordering the list changes the RLP,
      *        hence the state root of the fork block, hence the chain.
      * @param initNumOfCabinets Must be > 0: a zero value makes getMiningValidators() underflow.
+     *
+     * @dev Gated on onlyCoinbase and onlyZeroGasPrice, matching every 0.8.x initialiser in
+     *      this repo (StakeHub, Governor, ...). The protocol calls this from SystemAddress
+     *      with block.coinbase also set to SystemAddress and a zero gas price
+     *      (core/pgp_systemcontract_deploy.go), so the gate is invisible on the legitimate
+     *      path and closes it to ordinary transactions. Without it the one-shot init would
+     *      be the single point of failure for the whole deployment: whoever calls it first
+     *      fixes the validator set forever, because alreadyInit cannot be undone.
      */
-    function init(bytes calldata initValidatorSetBytes, uint256 initNumOfCabinets) external onlyNotInit {
+    function init(bytes calldata initValidatorSetBytes, uint256 initNumOfCabinets)
+        external
+        onlyNotInit
+        onlyCoinbase
+        onlyZeroGasPrice
+    {
         require(initNumOfCabinets > 0, "numOfCabinets must be positive");
         (ValidatorSetPackage memory validatorSetPkg, bool valid) = decodeValidatorSet(initValidatorSetBytes);
         require(valid, "failed to parse init validatorSet");
         require(validatorSetPkg.validatorSet.length > 0, "empty validator set");
+        // The node writes the validator count into a single byte of the header extra field
+        // (consensus/parlia/parlia.go, `append(header.Extra, byte(len(newValidators)))`),
+        // so 256 would wrap to 0 and produce a header that cannot be parsed back. pgpinit
+        // already refuses to encode such a payload (maxPGPGenesisValidators); this is the
+        // contract-side half of the same limit, and it is the half that survives a
+        // different encoder being written later.
+        require(validatorSetPkg.validatorSet.length <= 255, "validator set too large");
+
         for (uint256 i; i < validatorSetPkg.validatorSet.length; ++i) {
             currentValidatorSet.push(validatorSetPkg.validatorSet[i]);
             currentValidatorSetMap[validatorSetPkg.validatorSet[i].consensusAddress] = i + 1;

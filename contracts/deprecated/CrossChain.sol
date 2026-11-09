@@ -129,7 +129,10 @@ contract CrossChain is System, ICrossChain, IParamSubscriber {
         _;
     }
 
-    function init() external onlyNotInit {
+    // onlyCoinbase / onlyZeroGasPrice: initialised by the protocol from SystemAddress at the
+    // deploy height, so the gate is inert on the legitimate path and stops an ordinary
+    // transaction from flipping alreadyInit first.
+    function init() external onlyNotInit onlyCoinbase onlyZeroGasPrice {
         batchSizeForOracle = INIT_BATCH_SIZE;
 
         oracleSequence = -1;

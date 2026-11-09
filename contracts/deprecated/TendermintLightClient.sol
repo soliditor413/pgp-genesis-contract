@@ -28,7 +28,10 @@ contract TendermintLightClient is ILightClient, System, IParamSubscriber {
     event syncConsensusState(uint64 height, uint64 preValidatorSetChangeHeight, bytes32 appHash, bool validatorChanged);  // @dev deprecated
     event paramChange(string key, bytes value);  // @dev deprecated
 
-    function init() external onlyNotInit {
+    // onlyCoinbase / onlyZeroGasPrice: initialised by the protocol from SystemAddress at the
+    // deploy height, so the gate is inert on the legitimate path and stops an ordinary
+    // transaction from flipping alreadyInit first.
+    function init() external onlyNotInit onlyCoinbase onlyZeroGasPrice {
         uint256 pointer;
         uint256 length;
         (pointer, length) = Memory.fromBytes(INIT_CONSENSUS_STATE_BYTES);

@@ -85,7 +85,10 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
         reentryLock = 1;
     }
 
-    function init() external onlyNotInit {
+    // onlyCoinbase / onlyZeroGasPrice: the protocol initialises this contract from
+    // SystemAddress at the deploy height, so the gate is inert on the legitimate path and
+    // stops an ordinary transaction from burning the one-shot init before it runs.
+    function init() external onlyNotInit onlyCoinbase onlyZeroGasPrice {
         relayFee = INIT_MINIMUM_RELAY_FEE;
         bep20ContractDecimals[address(0x0)] = 18; // BNB decimals is 18
         alreadyInit = true;

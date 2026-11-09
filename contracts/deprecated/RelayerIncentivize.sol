@@ -44,7 +44,11 @@ contract RelayerIncentivize is IRelayerIncentivize, System, IParamSubscriber {
     );  // @dev deprecated
     event paramChange(string key, bytes value);  // @dev deprecated
 
-    function init() external onlyNotInit {
+    // onlyCoinbase / onlyZeroGasPrice: initialised by the protocol from SystemAddress at the
+    // deploy height, so the gate is inert on the legitimate path and stops an ordinary
+    // transaction from flipping alreadyInit first. The redundant in-body `require` below is
+    // upstream's; it is kept so this file stays a minimal diff off the tag it forked from.
+    function init() external onlyNotInit onlyCoinbase onlyZeroGasPrice {
         require(!alreadyInit, "already initialized");
         headerRelayerRewardRateMolecule = HEADER_RELAYER_REWARD_RATE_MOLECULE;
         headerRelayerRewardRateDenominator = HEADER_RELAYER_REWARD_RATE_DENOMINATOR;

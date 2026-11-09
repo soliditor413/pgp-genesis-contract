@@ -80,7 +80,11 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         previousHeight = block.number;
     }
 
-    function init() external onlyNotInit {
+    // onlyCoinbase / onlyZeroGasPrice: the protocol initialises this contract from
+    // SystemAddress at the deploy height, so the gate is inert on the legitimate path and
+    // stops an ordinary transaction from burning the one-shot init (and with it the
+    // thresholds) before the deployment does. Same convention as the 0.8.x initialisers.
+    function init() external onlyNotInit onlyCoinbase onlyZeroGasPrice {
         misdemeanorThreshold = MISDEMEANOR_THRESHOLD;
         felonyThreshold = FELONY_THRESHOLD;
         alreadyInit = true;
