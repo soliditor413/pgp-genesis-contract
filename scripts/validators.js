@@ -32,14 +32,20 @@ function extraDataSerialize(validators) {
   return Buffer.concat(arr);
 }
 
+// NOTE: address strings must be turned into bytes before RLP encoding.
+// `rlp` (v2.2.7) treats a JS string as UTF-8, so passing '0x1234...' as-is yields a
+// 40-char ASCII blob instead of a 20-byte address. packageType stays the JS number 0,
+// which RLP encodes as 0x80 (empty string) -- matching BSC mainnet, not 0x00.
+// Ground truth: the 1-validator fixture in extension/BSCValidatorSetTool.sol decodes as
+// `f845 80 f842 f840 94<20> 94<20> 94<20> 64`.
 function validatorUpdateRlpEncode(validators, bLSPublicKeys) {
   let n = validators.length;
   let vals = [];
   for (let i = 0; i < n; i++) {
     vals.push([
-      validators[i].consensusAddr,
-      validators[i].bscFeeAddr,
-      validators[i].feeAddr,
+      web3.utils.hexToBytes(validators[i].consensusAddr),
+      web3.utils.hexToBytes(validators[i].bscFeeAddr),
+      web3.utils.hexToBytes(validators[i].feeAddr),
       validators[i].votingPower,
       bLSPublicKeys[i],
     ]);

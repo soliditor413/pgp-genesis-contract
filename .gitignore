@@ -16,3 +16,5 @@ lib/forge-std/
 **/.bak
 .DS_Store
 *.pyc
+script/
+tmp-keyscan/

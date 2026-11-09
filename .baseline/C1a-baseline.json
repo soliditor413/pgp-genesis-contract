@@ -1,0 +1,133 @@
+{
+  "note": "C1-a（init 参数化）之后的基线。C2 的「A 级删除逐字节不变」必须比这个，不是比 C0。",
+  "forge": "forge Version: 1.8.3",
+  "build_cmd": "FOUNDRY_TEST=/nonexistent-test FOUNDRY_SCRIPT=/nonexistent-script forge build",
+  "compiler_matrix": {
+    "solc 0.6.4+commit.1dca32f3 / evm istanbul": [
+      "BSCValidatorSet",
+      "SlashIndicator",
+      "SystemReward",
+      "GovHub",
+      "TokenHub",
+      "TendermintLightClient",
+      "RelayerIncentivize",
+      "RelayerHub",
+      "TokenManager",
+      "CrossChain",
+      "Staking"
+    ],
+    "solc 0.8.17+commit.8df45f5f / evm london": [
+      "StakeHub",
+      "StakeCredit",
+      "BSCGovernor",
+      "GovToken",
+      "BSCTimelock",
+      "TokenRecoverPortal"
+    ]
+  },
+  "artifacts": {
+    "BSCValidatorSet": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 28484,
+      "sha256": "ef805de3529c0b6f0bf6f8d6a291c4b7ade66b917b78b5dc36203c7c6ead7a3a"
+    },
+    "SlashIndicator": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 13239,
+      "sha256": "deed235252c18be88d1dc944516d2dae5edfd40b6be0930abc54ad76843ce902"
+    },
+    "SystemReward": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 3245,
+      "sha256": "8edf6a838f0e0b4367204aef31150db6dc37415b5c7a397755aef33748e108f9"
+    },
+    "GovHub": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 2874,
+      "sha256": "d3ae7058d44f2d20c31f78b70e254b538ca23dd021d293ccd4075778d377908e"
+    },
+    "StakeHub": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 47087,
+      "sha256": "3bba84e83b73e610e20ab88d5f205a90e677bfdd687dc341e45e1b5cfc4e9d6c"
+    },
+    "StakeCredit": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 8855,
+      "sha256": "e8bfdfaa3bcb62eb8c239602afe04c45b8b1a29a63a98a90bd232d4b3905cb05"
+    },
+    "BSCGovernor": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 28490,
+      "sha256": "53a86382e44b6bdf893c9d9ff79fb79a000c6ea430f4d27fde0df6137fd53668"
+    },
+    "GovToken": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 9840,
+      "sha256": "52e26502c8253df1f5bb82ce4202a6efa82ead5edc3d66fefdd77f7ab774668f"
+    },
+    "BSCTimelock": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 9607,
+      "sha256": "18be9f557c38343ce91541fa95aeacc38bca96c730a861c42796cb9f8bc7e128"
+    },
+    "TokenHub": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 8309,
+      "sha256": "3c667965606bd5647158c04a897964cb96ddd8238b083335cd69b250b7f66d89"
+    },
+    "TendermintLightClient": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 3688,
+      "sha256": "e833e678f43dacd753fb8c677a1a93fcf9014fbee235f2000a4ee1720b259a91"
+    },
+    "RelayerIncentivize": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 2803,
+      "sha256": "47c66567d7118f61c5e4427b34eef4fda263fd0007533b14ffa62cca9364615b"
+    },
+    "RelayerHub": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 2757,
+      "sha256": "7eee2a31a124ac7c7a458479386f6fc5c64d2f374e1b28e4c718995ac5a13f8e"
+    },
+    "TokenManager": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 3691,
+      "sha256": "f0fe49615a26e2cbacff59f82e8493a3117aa342a4c9f156521b1872525326c9"
+    },
+    "CrossChain": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 6072,
+      "sha256": "f4fce7bd03299b16bbe013ffb724da6c4a1f01560ffcca7821027a24214ec727"
+    },
+    "Staking": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 4786,
+      "sha256": "dca7f46830c27d1eed30adf23eac646ba14e33d366274b8d5c78c2884773158d"
+    },
+    "TokenRecoverPortal": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 7542,
+      "sha256": "09f5085ec51989b54663b416245736aff1ea01b3320eae48ea623db0373a21f7"
+    }
+  },
+  "total_bytes": 191369
+}

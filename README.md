@@ -46,39 +46,43 @@ bash scripts/flatten.sh
 
 All system contracts will be flattened and output into `${workspace}/contracts/flattened/`.
 
-## How to generate genesis file
+## How to generate the genesis file
 
-1. Edit `init_holders.js` file to alloc the initial BNB holder.
-2. Edit `validators.js` file to alloc the initial validator set.
-3. Edit system contracts setting as needed.
-4. Run `node scripts/generate-genesis.js` will generate genesis.json
+The genesis files used to be committed here (`genesis.json`, `genesis-dev.json`,
+`genesis-testnet.json`, `genesis-template.json`, ~1.16 MB total) and regenerated
+by `scripts/generate-genesis.js` + `init_holders.js`, with a CI job
+(`check-genesis.yml`) that failed whenever they drifted. All of that is gone: it
+only ever served the BSC alloc path, which this chain does not use.
 
-## How to generate mainnet/testnet/dev genesis file
+Genesis is now produced on demand by `scripts/generate.py`, which writes the
+system-contract bytecode into the alloc directly:
 
-```shell 
-# build mainnet genesis file & clean
+```shell
 npm run generate:mainnet && poetry run python -m scripts.generate recover
-
-# build testnet genesis file & clean
 npm run generate:testnet && poetry run python -m scripts.generate recover
-
-# build local dev-net genesis file & clean
-npm run generate:dev && poetry run python -m scripts.generate recover
-```
-Check the `genesis.json` file, and you can get the exact compiled bytecode for different network.
-(`poetry run python -m scripts.generate --help ` for more details)
-```
-# you can verify the bytecode in genesis.json with solc, take ./contracts/StakeHub.sol for example:
-solc-select use 0.8.17
-solc --optimize --optimize-runs 200 --abi --metadata-hash none --bin-runtime ./contracts/StakeHub.sol --base-path . --include-path ./node_modules/ -o output
+npm run generate:dev     && poetry run python -m scripts.generate recover
 ```
 
-You can refer to `generate:dev` in `package.json` for more details about how to custom params for local dev-net.
+(`poetry run python -m scripts.generate --help` for more details, and see
+`generate:dev` in `package.json` for how to override params.)
+
+Nothing is committed, so nothing can drift. What *is* checked is the compiled
+bytecode itself, against a pinned baseline:
+
+```shell
+python3 .baseline/preflight.py        # 5 gates, see .baseline/preflight.py --help
+```
 
 ## update ABI files
 
+Never edit these by hand, and never redirect `forge inspect` yourself -- it
+needs a fully-qualified name, `--json`, and `FOUNDRY_TEST`/`FOUNDRY_SCRIPT`
+pointed away from the real trees, or it fails for reasons unrelated to the ABI.
+
 ```bash
-forge inspect {{contract}} abi > abi/{{contract}}.abi
+python3 scripts/export-abis.py            # rewrite abi/*.abi
+python3 scripts/export-abis.py --check    # exit 1 if stale
+python3 .baseline/check_abi_crossrepo.py  # does the node still find what it packs?
 ```
 
 ## How to update contract interface for test

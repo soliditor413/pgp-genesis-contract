@@ -3,7 +3,10 @@ src = 'contracts'
 test = 'test'
 script = 'foundry-script'
 out = 'out'
-fs_permissions = [{ access = "read-write", path = "./out" }]
+fs_permissions = [
+  { access = "read-write", path = "./out" },
+  { access = "read", path = "./test" }, # golden fixtures read by test/PGPValidatorInit.t.sol
+]
 libs = ['lib', 'node_modules']
 remappings = [
     'ds-test/=lib/forge-std/lib/ds-test/src/',

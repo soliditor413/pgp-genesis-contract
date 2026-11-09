@@ -208,7 +208,17 @@ def generate_validator_set(init_validator_set_bytes, init_burn_ratio):
     )
 
     replace_parameter(contract, "uint256 public constant INIT_BURN_RATIO", f"{init_burn_ratio}")
-    replace_parameter(contract, "bytes public constant INIT_VALIDATORSET_BYTES", f"hex\"{init_validator_set_bytes}\"")
+
+    # NOTE: the validator list is deliberately NOT rewritten here anymore.
+    # `INIT_VALIDATORSET_BYTES` / `INIT_NUM_OF_CABINETS` no longer exist as compile-time
+    # constants; BSCValidatorSet.init(bytes,uint256) receives them from the consensus engine
+    # (parlia.initContract packs the calldata out of the chain config). That is what lets one
+    # single bytecode serve both a 6-validator devnet and a 21-validator mainnet -- only the
+    # genesis config differs, so the "two bytecode sets, picked the wrong one, chain forks"
+    # failure mode simply cannot happen.
+    # `init_validator_set_bytes` is kept in the signature because callers still compute it,
+    # but it is now only used to emit the node-side genesis fragment, never to patch Solidity.
+    _ = init_validator_set_bytes
 
     if network == "dev":
         insert(

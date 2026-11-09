@@ -82,7 +82,7 @@ contract Deployer is Test {
     constructor() {
         // please use the following command to run the test on mainnet fork instead: forge test --rpc-url ${fork_url}
         // vm.createSelectFork("bsc");
-        assertEq(block.chainid, 56);
+        assertEq(block.chainid, 860621);
 
         // setup system contracts
         bscValidatorSet = BSCValidatorSet(VALIDATOR_CONTRACT_ADDR);

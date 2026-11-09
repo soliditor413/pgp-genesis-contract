@@ -402,24 +402,6 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         return (indicator.height, indicator.count);
     }
 
-    function encodeSlashPackage(address valAddr) internal view returns (bytes memory) {
-        bytes[] memory elements = new bytes[](4);
-        elements[0] = valAddr.encodeAddress();
-        elements[1] = uint256(block.number).encodeUint();
-        elements[2] = uint256(bscChainID).encodeUint();
-        elements[3] = uint256(block.timestamp).encodeUint();
-        return elements.encodeList();
-    }
-
-    function encodeVoteSlashPackage(bytes memory voteAddr) internal view returns (bytes memory) {
-        bytes[] memory elements = new bytes[](4);
-        elements[0] = voteAddr.encodeBytes();
-        elements[1] = uint256(block.number).encodeUint();
-        elements[2] = uint256(bscChainID).encodeUint();
-        elements[3] = uint256(block.timestamp).encodeUint();
-        return elements.encodeList();
-    }
-
     function getSlashThresholds() external view override(ISlashIndicator) returns (uint256, uint256) {
         return (misdemeanorThreshold, felonyThreshold);
     }

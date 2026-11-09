@@ -21,6 +21,25 @@ contract SystemV2 {
     address internal constant TIMELOCK_ADDR = 0x0000000000000000000000000000000000002006;
     address internal constant TOKEN_RECOVER_PORTAL_ADDR = 0x0000000000000000000000000000000000003000;
 
+    // INIT_PROTECTOR is the address BSCGovernor, StakeHub and TokenRecoverPortal
+    // hand to Protectable at initialisation. It holds pause / resume /
+    // blacklist, so it must be a multisig or a timelock contract, never a single
+    // key: _setProtector is only reachable through
+    // updateParam -> GovHub(onlyGovernorTimelock) -> BSCGovernor proposal, and
+    // BSCGovernor refuses to propose until GovToken.totalSupply() reaches
+    // PROPOSE_START_GOVBNB_SUPPLY_THRESHOLD (10,000,000, same as upstream BSC).
+    // That makes the address effectively immutable for a long time after
+    // deployment, so whatever is set here is what the chain lives with.
+    //
+    // Upstream BSC uses a Gnosis Safe here (0x08E68Ec70FA3b629784fDB28887e206ce8561E08,
+    // Safe: Singleton L2 1.3.0, deployed on BSC). This one must be deployed on
+    // THIS chain: an address holding no code here can never be msg.sender, so
+    // pausing and rotating the protector would both become impossible -- a fate
+    // worse than the EOA it replaces. audit/post-d-check.sh asserts
+    // eth_getCode(PROTECTOR) != "0x" for exactly this reason.
+    // See audit/04-verification.md section F-02.1.
+    address internal constant INIT_PROTECTOR = 0x1Bb1Fe98F193B0E1A1c96C9F6db6325A2b0FE174;
+
     /*----------------- errors -----------------*/
     // @notice signature: 0x97b88354
     error UnknownParam(string key, bytes value);

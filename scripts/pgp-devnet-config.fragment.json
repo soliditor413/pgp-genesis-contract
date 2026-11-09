@@ -1,0 +1,26 @@
+{
+  "parlia": {},
+  "lubanBlock": 1100,
+  "platoBlock": 1100,
+  "hertzBlock": 1100,
+  "legacy": {
+    "forkHeight": 1100,
+    "parliaGenesisValidators": [
+      "0x53781e106a2e3378083bdcede1874e5c2a7225f8",
+      "0xd9758863f280c25b0d1f2f81705e3725ccd5ac49",
+      "0x9b170f914ef3541cd29ee672a11c56d4b96b4b6f",
+      "0xfd7f1f6e2c5157a33dda2e91f58f32862f864d70",
+      "0x8aef2209eab2f60bc13da5e669ad832709f5e71d",
+      "0x05f9b7a73f6ba0298c5c1943204a6a54839166b2"
+    ],
+    "parliaGenesisVotingPowers": [
+      100,
+      100,
+      100,
+      100,
+      100,
+      100
+    ],
+    "parliaGenesisCabinets": 6
+  }
+}

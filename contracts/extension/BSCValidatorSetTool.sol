@@ -27,6 +27,66 @@ contract BSCValidatorSetTool {
     }
 
     function decodeValidatorSetSynPackage(bytes memory msgBytes) internal pure returns (bool) {
+        (, bool success) = decodeValidatorSet(msgBytes);
+        return success;
+    }
+
+    /**
+     * @notice CI gate: decode the exact payload the node would hand to
+     *         `BSCValidatorSet.init(bytes,uint256)`, WITHOUT starting a chain.
+     * @dev Mirrors `decodeValidator`'s index-to-field mapping exactly:
+     *      idx0 = consensusAddress, idx1 = feeAddress, idx2 = BBCFeeAddress,
+     *      idx3 = votingPower (flips `success`), idx4 = optional BLS vote address.
+     *      A 4-tuple is therefore a valid payload -- that is the format we ship.
+     *
+     *      This is the only honest way to prove that "the bytes the Go encoder produced"
+     *      and "the list written in validators.conf" are the same thing: the check runs on
+     *      the real decoder, not on a re-implementation of it.
+     *
+     *      All three address slots are returned, not just the consensus one. idx1 and idx2
+     *      are easy to swap -- both are addresses, the payload stays well-formed either way,
+     *      and the mistake is invisible in every other test. Returning them separately is
+     *      what lets the caller assert the ordering rather than assume it.
+     * @return valid           true if the payload parsed end-to-end
+     * @return consensusAddrs  consensus addresses **in payload order** (order is consensus-critical)
+     * @return feeAddrs        feeAddress per entry, same order (tuple idx 1)
+     * @return bbcFeeAddrs     BBCFeeAddress per entry, same order (tuple idx 2)
+     * @return votingPowers    voting power per entry, same order
+     */
+    function decodeInitPayload(bytes memory payload)
+        public
+        pure
+        returns (
+            bool valid,
+            address[] memory consensusAddrs,
+            address[] memory feeAddrs,
+            address[] memory bbcFeeAddrs,
+            uint64[] memory votingPowers
+        )
+    {
+        (IbcValidatorSetPackage memory pkg, bool ok) = decodeValidatorSet(payload);
+        if (!ok) {
+            return (false, new address[](0), new address[](0), new address[](0), new uint64[](0));
+        }
+        uint256 n = pkg.validatorSet.length;
+        consensusAddrs = new address[](n);
+        feeAddrs = new address[](n);
+        bbcFeeAddrs = new address[](n);
+        votingPowers = new uint64[](n);
+        for (uint256 i; i < n; ++i) {
+            consensusAddrs[i] = pkg.validatorSet[i].consensusAddress;
+            feeAddrs[i] = pkg.validatorSet[i].feeAddress;
+            bbcFeeAddrs[i] = pkg.validatorSet[i].BBCFeeAddress;
+            votingPowers[i] = pkg.validatorSet[i].votingPower;
+        }
+        return (true, consensusAddrs, feeAddrs, bbcFeeAddrs, votingPowers);
+    }
+
+    function decodeValidatorSet(bytes memory msgBytes)
+        internal
+        pure
+        returns (IbcValidatorSetPackage memory, bool)
+    {
         IbcValidatorSetPackage memory validatorSetPkg;
 
         RLPDecode.Iterator memory iter = msgBytes.toRLPItem().iterator();
@@ -41,7 +101,7 @@ contract BSCValidatorSetTool {
                 for (uint256 j = 0; j < items.length; ++j) {
                     (Validator memory val, bool ok) = decodeValidator(items[j]);
                     if (!ok) {
-                        return false;
+                        return (validatorSetPkg, false);
                     }
                     validatorSetPkg.validatorSet[j] = val;
                 }
@@ -51,7 +111,7 @@ contract BSCValidatorSetTool {
             }
             ++idx;
         }
-        return success;
+        return (validatorSetPkg, success);
     }
 
     function decodeValidator(RLPDecode.RLPItem memory itemValidator) internal pure returns (Validator memory, bool) {

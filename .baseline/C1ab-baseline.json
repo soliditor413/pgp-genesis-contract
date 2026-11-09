@@ -1,0 +1,349 @@
+{
+  "note": "C1-a（init 参数化）+ B.2.2（uint32 bscChainID=860621，并发由用户在 19:05 应用）。C2 的 A 级删除验收比这份。",
+  "created_at": "2026-11-02T19:09:06+08:00",
+  "forge": "forge Version: 1.8.3",
+  "build_cmd": "FOUNDRY_TEST=/nonexistent-test FOUNDRY_SCRIPT=/nonexistent-script forge build",
+  "git_head": "041881a02475638b19f3d840871b7621cdebd8f8",
+  "compiler_matrix": {
+    "solc 0.6.4+commit.1dca32f3 / evm istanbul": [
+      "BSCValidatorSet",
+      "SlashIndicator",
+      "SystemReward",
+      "GovHub",
+      "TokenHub",
+      "TendermintLightClient",
+      "RelayerIncentivize",
+      "RelayerHub",
+      "TokenManager",
+      "CrossChain",
+      "Staking"
+    ],
+    "solc 0.8.17+commit.8df45f5f / evm london": [
+      "StakeHub",
+      "StakeCredit",
+      "BSCGovernor",
+      "GovToken",
+      "BSCTimelock",
+      "TokenRecoverPortal"
+    ]
+  },
+  "artifacts": {
+    "BSCValidatorSet": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 28458,
+      "sha256": "07f1d58c9c6c9596c19459da2f985fc1cf08f19f7f9c8740ffd80fa525fcdbef"
+    },
+    "SlashIndicator": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 13215,
+      "sha256": "a4c5d089720f7d3d9de145a2250621de1bcc115e1e2bb783338c7ba71dcda05c"
+    },
+    "SystemReward": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 3224,
+      "sha256": "21ac20cbabb00c8388b35eb1712a71fd933fec55163aa7854e6d43d332729622"
+    },
+    "GovHub": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 2853,
+      "sha256": "c0b0bcce9d208e5b92fc75f84ee996b42278dfb42eee7722a4e1897193397500"
+    },
+    "StakeHub": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 47087,
+      "sha256": "3bba84e83b73e610e20ab88d5f205a90e677bfdd687dc341e45e1b5cfc4e9d6c"
+    },
+    "StakeCredit": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 8855,
+      "sha256": "e8bfdfaa3bcb62eb8c239602afe04c45b8b1a29a63a98a90bd232d4b3905cb05"
+    },
+    "BSCGovernor": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 28490,
+      "sha256": "53a86382e44b6bdf893c9d9ff79fb79a000c6ea430f4d27fde0df6137fd53668"
+    },
+    "GovToken": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 9840,
+      "sha256": "52e26502c8253df1f5bb82ce4202a6efa82ead5edc3d66fefdd77f7ab774668f"
+    },
+    "BSCTimelock": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 9607,
+      "sha256": "18be9f557c38343ce91541fa95aeacc38bca96c730a861c42796cb9f8bc7e128"
+    },
+    "TokenHub": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 8288,
+      "sha256": "01e4e377db260c4f4b20b181ff170ffac8afd26223835035daec7019984d5fb9"
+    },
+    "TendermintLightClient": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 3667,
+      "sha256": "55cd15a8e81f3e2ef0a6b1dc3c3ae91234fd75104c21560bf8b26c6350cbd332"
+    },
+    "RelayerIncentivize": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 2782,
+      "sha256": "044059318634309abd83b618d8b9ac5359829815cc275d7588410fe91ba8f7d3"
+    },
+    "RelayerHub": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 2736,
+      "sha256": "d6dca6e31127d7de7d6581b6b9a32683c8512d84a2863f052bf99b7063043812"
+    },
+    "TokenManager": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 3670,
+      "sha256": "0fefd682b42f03d8fa8771466bb82088b67fc6c2ee23b9adaa87abdd5d056ff4"
+    },
+    "CrossChain": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 6074,
+      "sha256": "5c4241cba448a51d4840f64d9c4877c1aee8334d68a42c39c379c30dc5a2972a"
+    },
+    "Staking": {
+      "solc": "0.6.4+commit.1dca32f3",
+      "evm": "istanbul",
+      "bytes": 4765,
+      "sha256": "8384eead4ac9a769830c36b39476772b1d0365f6eec4bd099fb4bbe7ced0bb2d"
+    },
+    "TokenRecoverPortal": {
+      "solc": "0.8.17+commit.8df45f5f",
+      "evm": "london",
+      "bytes": 7542,
+      "sha256": "09f5085ec51989b54663b416245736aff1ea01b3320eae48ea623db0373a21f7"
+    }
+  },
+  "dirty_sources": {
+    "contracts/BSCGovernor.sol": {
+      "mtime": "2026-11-02T18:12:21+08:00",
+      "sha256": "b83017b099d1fca117e86c6a520b436134c70451feecf0fe7ab4642afc58912a"
+    },
+    "contracts/BSCTimelock.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "0c5667a8bda15b63c272cb4854761662fad2b39de8c43d1389cdd6047143123e"
+    },
+    "contracts/BSCValidatorSet.sol": {
+      "mtime": "2026-11-02T18:45:12+08:00",
+      "sha256": "58aae8f38ed249c0da8d7660286555cbe22cb33dfd8dc4bc1da22a8a08e929d1"
+    },
+    "contracts/GovHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "a8f560720eb7d0595064df1dd43863dced8881d9a68fd73540a530a1d5453ab9"
+    },
+    "contracts/GovToken.sol": {
+      "mtime": "2026-11-02T18:19:58+08:00",
+      "sha256": "e33115a1291ff177b2a455ad7d8b64802e4f54cc865ce1ef087751b81051c9ad"
+    },
+    "contracts/SlashIndicator.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "6fae75bb22b0707cc9493b1cf3f2daa3836daf0f5d52a43e746e1090601a8c93"
+    },
+    "contracts/StakeCredit.sol": {
+      "mtime": "2026-10-28T18:55:14+08:00",
+      "sha256": "8f364e5a928111a907c8675c304051ecf72f78420b965e650dbe88895af6e5ab"
+    },
+    "contracts/StakeHub.sol": {
+      "mtime": "2026-11-02T18:12:30+08:00",
+      "sha256": "9c186a91d948784a64631205162bc3a0122ec535d5886d72cf888f1770fc481d"
+    },
+    "contracts/System.sol": {
+      "mtime": "2026-11-02T19:05:13+08:00",
+      "sha256": "5d3c131dd8939b32d2f184d1c577e8adfd2d2d8aac3766d4b772b22eb9b0729c"
+    },
+    "contracts/SystemReward.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "bc5148d32fd6da79a2a82aae31c65d8d06111d87d8041e7e22f3b48941497fbb"
+    },
+    "contracts/SystemV2.sol": {
+      "mtime": "2026-10-22T19:05:51+08:00",
+      "sha256": "e463b43c58f9b5f00ffaac74a77b1c1017972e9c137131e63a7a56e104269929"
+    },
+    "contracts/TokenHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "7c70d30712f5cd606de6dca2dba8572d062e9254ca3f311086ef0a37d07b63ea"
+    },
+    "contracts/TokenRecoverPortal.sol": {
+      "mtime": "2026-11-02T18:12:35+08:00",
+      "sha256": "afad7cba42e8925eb62f1af70e6eafe05a4d17a58eb0fe6f107116252a28a09b"
+    },
+    "contracts/deprecated/CrossChain.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "114652fac6138203d3c3b500597af38d84fd4855004cb8f25b97cf82d726daea"
+    },
+    "contracts/deprecated/RelayerHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "d8216d104fbde3e532f6a50e22bbce0fd14f031da7e8b01150bbeca49b48ef4b"
+    },
+    "contracts/deprecated/RelayerIncentivize.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "e066d810c254cc3ba19ed388c9ebcf5c2d4a4aa1f043a66c54027faed97f280d"
+    },
+    "contracts/deprecated/Staking.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "e95273d291137047def03503e4b70fec6ff4369afded7de4146d35fdd792bfca"
+    },
+    "contracts/deprecated/TendermintLightClient.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "e02748af5352c52b10201dbc0dd2989668d03d0204d3565b32693fe3f00bdf20"
+    },
+    "contracts/deprecated/TokenManager.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "05fec5c242c0ffe472f4733d29d4611a23333fe8a516ee7b11779f14f60ac35f"
+    },
+    "contracts/extension/BSCValidatorSetTool.sol": {
+      "mtime": "2026-11-02T18:45:27+08:00",
+      "sha256": "1624b5bfe5db07d351ee2c524b87043f192ac5f6690c251a7ed0d51f8f4eef7c"
+    },
+    "contracts/extension/Protectable.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "05288d91d42bcd54249f2768d98d33df5c4c8331ac0a6bcb2157faf7e13f70bd"
+    },
+    "contracts/interface/0.6.x/IApplication.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "db345355d6dcc78ed6b14bbf077fc6a8e6039a4f7ea565be958e23b2fa542186"
+    },
+    "contracts/interface/0.6.x/IBEP20.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "36a854354ad6bb7c77426b861712cfe2b56b0bcb3e93a8f8705b992ce1169620"
+    },
+    "contracts/interface/0.6.x/IBSCValidatorSet.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "1af4ae03a67f3b1d451145f12cd902adafcdbd8957b6a723acee194f53d2fb95"
+    },
+    "contracts/interface/0.6.x/IBSCValidatorSetV2.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "8838acc96122f6c37055bc1942e0390c03525c6a40f61549ce1b2e5ec4466ea4"
+    },
+    "contracts/interface/0.6.x/ICrossChain.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "0da10298ec68645424c24ffff2e9969372f9d91b71dba05a055257ef8b7b80f7"
+    },
+    "contracts/interface/0.6.x/ILightClient.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "bdb468a0d7eefe14d22b4c8b80fe40d19390adcfdc9e55ea587a2894638babe3"
+    },
+    "contracts/interface/0.6.x/IParamSubscriber.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "b915bb7e2b68869874284b8f2f20a28976c99d4b97214c272caebd4962bfb304"
+    },
+    "contracts/interface/0.6.x/IRelayerHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "14ebe613161d72c5981576584e9001dd213ee35d348ceaf1be8e6258cb661f16"
+    },
+    "contracts/interface/0.6.x/IRelayerIncentivize.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "b0c83fced46afe88a3eb2294c895fbca7b31ab8cf19adebef39b7f8421f0d1a1"
+    },
+    "contracts/interface/0.6.x/ISlashIndicator.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "38184357e897c75250f6a890213431a47b542c666331825fd58ccacbbcb3509a"
+    },
+    "contracts/interface/0.6.x/IStakeHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "4f1617d3323e7be408b5c7303578486f2d4e3502a2efa29813cbc0f1712f460b"
+    },
+    "contracts/interface/0.6.x/IStaking.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "f894e02183430acec175e0e5325d4ea485b3df97a47d046e5aeb8407096b5d5f"
+    },
+    "contracts/interface/0.6.x/ISystemReward.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "8e951d2790e0f70cb8ef17de9ab5173ac0e229abbf73d0262f4bd448a9e5c698"
+    },
+    "contracts/interface/0.6.x/ITokenHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "87b1f043f255765748d037832952842ce56139dbc4081bc6caedbc6620bcf523"
+    },
+    "contracts/interface/0.8.x/IBSCValidatorSet.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "10ac8903e7d8baaec252f4d690fc6c3c5349b6360e253d8d28ba03f7995ad72f"
+    },
+    "contracts/interface/0.8.x/IGovToken.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "5b374be271f3634b659a3f323c33ea017689390b1af6dadccd5f0d2993f2d1a5"
+    },
+    "contracts/interface/0.8.x/IStakeCredit.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "b5e2fed062edd39a319e06bfefd9f1ddc1438519ac7c2aa47f7ec7de5768209f"
+    },
+    "contracts/interface/0.8.x/IStakeHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "517a441f813993827620f6a7a25606a53594061ea274573211f1d412866c10f6"
+    },
+    "contracts/interface/0.8.x/ITokenHub.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "dfa626424f8ede1b6793d8655e7efb03e395982f77b43076242a2c9c1bfd400c"
+    },
+    "contracts/interface/0.8.x/ITokenRecoverPortal.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "b4b8057fffec6fb3d31b4547c9e55be5fdd4cac1726b4264d063f57b60995abb"
+    },
+    "contracts/lib/0.6.x/BytesLib.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "f054ec30cdf406332ecb3949198d16810e57597690cba8994bedbbefff2abb50"
+    },
+    "contracts/lib/0.6.x/BytesToTypes.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "d6e9b349062c81372259aa037fbf9398263e6550f701f1d3342f51500d2b3460"
+    },
+    "contracts/lib/0.6.x/CmnPkg.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "fdceb85a4285561c2e78f0974e82667410a56adc2dfb071429aab8ca10a26ad6"
+    },
+    "contracts/lib/0.6.x/Memory.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "bdff1c7b83c59bff4aeeea03176f1b8e1e3c6f998ff7e2428b19c491d0754219"
+    },
+    "contracts/lib/0.6.x/MerkleProof.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "8b38c2e6d82969dd8bc6d1fea755a18d653da092ab301f286c41b534525da5a0"
+    },
+    "contracts/lib/0.6.x/RLPDecode.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "8de997f9f388502c14cd7aba0f91bf3342019c9d606d779847518af15b519fc0"
+    },
+    "contracts/lib/0.6.x/RLPEncode.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "7d4a9af1a892498beb938695c5ee7c352e6aed9cdaf55a3e0abe8204f8fff52b"
+    },
+    "contracts/lib/0.6.x/SafeMath.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "fdb0fa45dbf98f4226d26931250f626f4aec9c0fa72e94abc37e5f884654181f"
+    },
+    "contracts/lib/0.6.x/SizeOf.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "12aa5b9e40ebb39083cd36b81a6fc8bf078dae4d33ba3902d709ee4a6b59cf9e"
+    },
+    "contracts/lib/0.6.x/TypesToBytes.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "64127a8f120556426645911ddbce74ee55fdc7839171cc689fca155796630891"
+    },
+    "contracts/lib/0.8.x/RLPDecode.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "bae881a713a31066ce643682b494e87f975ac222639b560d7852d37809769fd7"
+    },
+    "contracts/lib/0.8.x/Utils.sol": {
+      "mtime": "2026-10-22T19:03:19+08:00",
+      "sha256": "264eff5206039d430bde80a88db8782efdab04c18437a8da4ffbaef0d67a43a3"
+    }
+  },
+  "total_bytes": 191153
+}
