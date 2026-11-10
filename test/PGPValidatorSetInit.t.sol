@@ -57,6 +57,8 @@ interface IBSCValidatorSetInit {
 
     function getMiningValidators() external view returns (address[] memory, bytes[] memory);
 
+    function getWorkingValidatorCount() external view returns (uint256);
+
     function getTurnLength() external view returns (uint256);
 }
 
@@ -400,6 +402,35 @@ contract PGPValidatorSetInitTest is Test {
 
         vm.expectRevert(bytes("validator set too large"));
         validatorSet.init(_rlpList(body), n);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+        F-08: the consensus read paths refuse to answer before init
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice `numOfCabinets == 0` means "not initialised", and both read paths say so.
+    /// @dev Before this, the failure was silent and shape-dependent. `getMiningValidators`
+    ///      with a zero cabinet count skipped its early return, and then either underflowed
+    ///      in the candidate arithmetic (an out-of-bounds revert with no reason) or, when
+    ///      maxNumOfWorkingCandidates was also zero, built a zero-length array and returned
+    ///      an empty validator set -- a chain that stops one block later with nothing in the
+    ///      log pointing at the cause. `getWorkingValidatorCount` meanwhile answered 1, so
+    ///      the two disagreed exactly when it mattered.
+    function testReadPathsRevertBeforeInit() public {
+        vm.expectRevert(bytes("not initialized"));
+        validatorSet.getMiningValidators();
+
+        vm.expectRevert(bytes("not initialized"));
+        validatorSet.getWorkingValidatorCount();
+    }
+
+    /// @notice After init both paths answer, and they agree.
+    function testReadPathsAgreeAfterInit() public {
+        validatorSet.init(payload, 6);
+
+        (address[] memory mining,) = validatorSet.getMiningValidators();
+        assertEq(mining.length, 6, "six seats mine");
+        assertEq(validatorSet.getWorkingValidatorCount(), 6, "and six is what the count says");
     }
 
     /*//////////////////////////////////////////////////////////////

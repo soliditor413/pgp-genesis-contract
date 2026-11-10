@@ -289,10 +289,19 @@ contract SlashIndicator is ISlashIndicator, System, IParamSubscriber, IApplicati
         // call precompile contract to verify evidence
         bytes memory input = elements.encodeList();
         bytes memory output = new bytes(52);
+        uint256 retSize;
         assembly {
             let len := mload(input)
             if iszero(staticcall(not(0), 0x68, add(input, 0x20), len, add(output, 0x20), 0x34)) { revert(0, 0) }
+            retSize := returndatasize()
         }
+        // A staticcall to an address with no code also succeeds -- it just returns nothing.
+        // Without this check the 52-byte buffer stays all zeros, the recovered signer is
+        // address(0), and the failure surfaces later as "validator not migrated", which
+        // points at the validator set instead of at the missing precompile. The precompile
+        // always returns exactly 52 bytes. The reason is a string rather than a bare
+        // revert(0, 0) so the two failures at this site stay distinguishable in a trace.
+        require(retSize == 0x34, "invalid double sign evidence return size");
 
         address signer;
         uint256 evidenceHeight;

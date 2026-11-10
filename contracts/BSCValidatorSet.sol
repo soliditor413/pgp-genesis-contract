@@ -417,6 +417,15 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
         uint256 _numOfCabinets = numOfCabinets;
         uint256 _shuffleInterval = 200;
 
+        // numOfCabinets is only ever written by init and by updateParam, and both reject
+        // zero, so a zero here means "not initialised". Failing loudly matters because the
+        // alternative is silent: with `validators.length > 0` and `_numOfCabinets == 0` the
+        // early return below is skipped, the candidate arithmetic underflows, and the block
+        // producer gets an out-of-bounds revert with no reason -- or, when
+        // maxNumOfWorkingCandidates is also zero, an empty validator list and a chain that
+        // stops one block later with nothing in the log pointing at the cause.
+        require(_numOfCabinets > 0, "not initialized");
+
         address[] memory validators = getValidators();
         bytes[] memory voteAddrs = getVoteAddresses(validators);
         if (validators.length <= _numOfCabinets) {
@@ -540,6 +549,10 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
     function getWorkingValidatorCount() public view returns (uint256 workingValidatorCount) {
         workingValidatorCount = getValidators().length;
         uint256 _numOfCabinets = numOfCabinets;
+        // Same "not initialised" gate as getMiningValidators: without it this function
+        // answers 1 while getMiningValidators answers nothing, and the two disagree exactly
+        // when it matters most.
+        require(_numOfCabinets > 0, "not initialized");
         if (workingValidatorCount > _numOfCabinets) {
             workingValidatorCount = _numOfCabinets;
         }

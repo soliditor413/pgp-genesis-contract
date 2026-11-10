@@ -49,7 +49,6 @@ interface BSCValidatorSet {
     function INIT_BURN_RATIO() external view returns (uint256);
     function INIT_MAINTAIN_SLASH_SCALE() external view returns (uint256);
     function INIT_MAX_NUM_OF_MAINTAINING() external view returns (uint256);
-    function INIT_NUM_OF_CABINETS() external view returns (uint256);
     function INIT_SYSTEM_REWARD_RATIO() external view returns (uint256);
     function INIT_VALIDATORSET_BYTES() external view returns (bytes memory);
     function JAIL_MESSAGE_TYPE() external view returns (uint8);

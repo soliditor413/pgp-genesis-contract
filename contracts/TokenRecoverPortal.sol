@@ -195,6 +195,7 @@ contract TokenRecoverPortal is SystemV2, Initializable, ReentrancyGuardUpgradeab
         }
         bytes memory input = bytes.concat(pubKey, signature, msgBz);
         bytes memory output = new bytes(20);
+        uint256 retSize;
         /* solium-disable-next-line */
         assembly {
             // call Secp256k1SignatureRecover precompile contract
@@ -207,7 +208,13 @@ contract TokenRecoverPortal is SystemV2, Initializable, ReentrancyGuardUpgradeab
             // | 20 bytes |
             let len := mload(input)
             if iszero(staticcall(not(0), 0x69, add(input, 0x20), len, add(output, 0x20), 20)) { revert(0, 0) }
+            retSize := returndatasize()
         }
+        // Same fail-closed rule as SlashIndicator's 0x68 call: a staticcall to an address
+        // with no code succeeds with empty returndata, and the 20-byte buffer would stay
+        // all zeros -- i.e. address(0) would be handed on as the recovered owner. The
+        // precompile always returns exactly 20 bytes.
+        require(retSize == 20, "invalid recover return size");
 
         // return the recovered address
         return output;

@@ -38,6 +38,13 @@ contract TokenRecoverPortalTest is Deployer {
     bytes merkleRoot = hex"59bb94f7047904a8fdaec42e4785295167f7fd63742b309afeb84bd71f8e6554";
 
     function setUp() public {
+        // The portal is initialised at block D on a real chain; the Deployer harness only
+        // etches code. Mirror the node's call context so initialize() gets through
+        // onlyCoinbase / onlyZeroGasPrice, exactly as core/pgp_systemcontract_deploy.go does.
+        vm.coinbase(address(this));
+        vm.txGasPrice(0);
+        tokenRecoverPortal.initialize();
+
         vm.mockCall(address(0x69), bytes(""), mockTokenOwner);
         // slot id for `merkleRootAlreadyInit`
         bytes32 slot = bytes32(uint256(105));
@@ -316,5 +323,36 @@ contract TokenRecoverPortalTest is Deployer {
         testRecover();
         vm.prank(protector);
         tokenRecoverPortal.cancelTokenRecover(testTokenSymbol, mockUser);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+            F-11b(2): the 0x69 call has to fail closed
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice If the 0x69 precompile returns nothing, recover() must reject it.
+    /// @dev A staticcall to an address with no code succeeds and returns zero bytes. Before
+    ///      the guard, that left the 20-byte output buffer all zeros and the portal would
+    ///      have treated address(0) as the recovered owner -- a fail-open on the one check
+    ///      that stands between a signature and a token recovery.
+    ///
+    ///      setUp mocks 0x69 to return a valid 20-byte owner, which is why every other test
+    ///      in this file keeps working; this test overrides that mock with empty returndata
+    ///      and asserts the guard, not the downstream signature check, is what fires.
+    function testRecoverRejectsShortPrecompileReturn() public {
+        setUpCorrectContractParams();
+        vm.mockCall(address(0x69), bytes(""), hex"");
+
+        (
+            bytes32 tokenSymbol,
+            uint256 amount,
+            bytes memory ownerPubKey,
+            bytes memory ownerSignature,
+            bytes memory approvalSignature,
+            bytes32[] memory merkleProof
+        ) = recoverParams();
+
+        vm.prank(mockUser);
+        vm.expectRevert(bytes("invalid recover return size"));
+        tokenRecoverPortal.recover(tokenSymbol, amount, ownerPubKey, ownerSignature, approvalSignature, merkleProof);
     }
 }

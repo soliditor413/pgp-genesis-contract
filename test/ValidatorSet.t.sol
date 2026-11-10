@@ -150,13 +150,12 @@ contract ValidatorSetTest is Deployer {
         (address[] memory miningVals,) = bscValidatorSet.getMiningValidators();
 
         uint256 count;
-        uint256 _numOfCabinets;
+        // numOfCabinets has no compile-time fallback any more: init and updateParam both
+        // reject zero, and getMiningValidators now reverts with "not initialized" rather
+        // than degrading to an empty set. This test therefore needs an initialised
+        // contract, which is what a real chain has before the first getMiningValidators.
+        uint256 _numOfCabinets = numOfCabinets;
         uint256 _maxNumOfWorkingCandidates = maxNumOfWorkingCandidates;
-        if (numOfCabinets == 0) {
-            _numOfCabinets = bscValidatorSet.INIT_NUM_OF_CABINETS();
-        } else {
-            _numOfCabinets = numOfCabinets;
-        }
         if ((vals.length - _numOfCabinets) < _maxNumOfWorkingCandidates) {
             _maxNumOfWorkingCandidates = vals.length - _numOfCabinets;
         }
