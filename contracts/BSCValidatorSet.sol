@@ -188,8 +188,27 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
         for (uint256 i; i < validatorSetPkg.validatorSet.length; ++i) {
             currentValidatorSet.push(validatorSetPkg.validatorSet[i]);
             currentValidatorSetMap[validatorSetPkg.validatorSet[i].consensusAddress] = i + 1;
+            // BEP-126: validatorExtraSet is where the BLS vote address lives, and
+            // init has to seed it. decodeValidatorSet has always parsed the
+            // optional fifth tuple field into voteAddrs, but init pushed only
+            // currentValidatorSet and silently dropped them - so
+            // getLivingValidators() answered with empty vote addresses and no
+            // aggregate attestation could ever verify. Fast finality was therefore
+            // impossible on any chain that bootstraps its validator set through
+            // init, which is every chain until StakeHub runs its first election;
+            // handleSynPackage, the historical filler of this array, now reverts as
+            // deprecated.
+            ValidatorExtra memory extra;
+            extra.voteAddress = validatorSetPkg.voteAddrs[i];
+            validatorExtraSet.push(extra);
         }
         numOfCabinets = initNumOfCabinets;
+        // Keep the derived vote-address sets consistent with the array above.
+        // doUpdateState does the same after every rotation; skipping it here would
+        // leave the "full set" empty while validatorExtraSet is not, and the two
+        // are compared when verifying an attestation.
+        setPreviousVoteAddrFullSet();
+        setCurrentVoteAddrFullSet();
         alreadyInit = true;
     }
 

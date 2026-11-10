@@ -27,8 +27,9 @@ import "forge-std/Test.sol";
  *
  * @dev Why a bare deployment is enough -- once setUp pins two values.
  *
- *      `init` touches exactly four storage slots: `currentValidatorSet`,
- *      `currentValidatorSetMap`, `numOfCabinets`, `alreadyInit`. It reads no other system
+ *      `init` touches exactly `currentValidatorSet`, `currentValidatorSetMap`,
+ *      `validatorExtraSet` (the BLS vote addresses, F-22), the two derived vote-address
+ *      sets, `numOfCabinets` and `alreadyInit`. It reads no other system
  *      contract. It does read `block.coinbase` and `tx.gasprice`, but only through the
  *      onlyCoinbase / onlyZeroGasPrice gates, so `setUp` pins both to the values the node
  *      uses (coinbase == msg.sender, gasprice == 0) and the body is then exercised exactly
@@ -56,6 +57,8 @@ interface IBSCValidatorSetInit {
     function getValidators() external view returns (address[] memory);
 
     function getMiningValidators() external view returns (address[] memory, bytes[] memory);
+
+    function getLivingValidators() external view returns (address[] memory, bytes[] memory);
 
     function getWorkingValidatorCount() external view returns (uint256);
 
@@ -476,8 +479,93 @@ contract PGPValidatorSetInitTest is Test {
     }
 
     /*//////////////////////////////////////////////////////////////
-                                Helpers
+                            Helpers
     //////////////////////////////////////////////////////////////*/
+
+    /// @notice F-22: `init` must store the BLS vote address, not just parse it.
+    /// @dev The bug this pins is a silent one. `decodeValidatorSet` has always read the
+    ///      optional fifth tuple field into `voteAddrs`, and `init` pushed only
+    ///      `currentValidatorSet` — so the addresses were parsed and dropped.
+    ///      `getLivingValidators()` then answered with empty vote addresses, which is what
+    ///      the first Luban devnet measured in every epoch block, and no aggregate
+    ///      attestation could ever verify: BEP-126 finality was structurally impossible on
+    ///      any chain whose validator set comes from `init`.
+    ///
+    ///      Nothing reverts in that state, which is why it needs a test that reads the
+    ///      stored value rather than one that checks a return code.
+    function testInitStoresVoteAddresses() public {
+        // A real BLS12-381 public key (48 bytes). The contract does not validate the
+        // curve, so any 48 bytes would do here; using a real key keeps the fixture
+        // honest about what the field holds.
+        bytes memory vote = hex"8ad2f8706d49990cffddd1971451ee8b023851e81b3fb226f01224ea4239eb24da26ff1b328177511e636c668b55396b";
+        assertEq(vote.length, 48, "fixture key length");
+
+        address consensus = devnetValidators[0];
+        bytes memory tuple = _rlpList(
+            abi.encodePacked(
+                _rlpStr(abi.encodePacked(consensus)),
+                _rlpStr(abi.encodePacked(consensus)),
+                _rlpStr(abi.encodePacked(consensus)),
+                _rlpUint(100),
+                _rlpStr(vote)
+            )
+        );
+        bytes memory p = _rlpList(abi.encodePacked(_rlpUint(0), _rlpList(tuple)));
+
+        validatorSet.init(p, 1);
+
+        (address[] memory living, bytes[] memory votes) = validatorSet.getLivingValidators();
+        assertEq(living.length, 1, "living validator count");
+        assertEq(living[0], consensus, "living validator address");
+        assertEq(votes.length, 1, "vote address count");
+        assertEq(votes[0], vote, "vote address must survive init");
+    }
+
+    /// @notice F-22: a four-field payload still initialises, with an empty vote address.
+    /// @dev The counterpart of the test above. Mainnet sends four-field payloads, and this
+    ///      is the behaviour the earlier 21-seat test asserts at index level; here it is
+    ///      pinned directly against `getLivingValidators` so the two shapes are visibly
+    ///      different rather than "one works, one is untested".
+    function testInitWithoutVoteAddressesLeavesThemEmpty() public {
+        address consensus = devnetValidators[0];
+        bytes memory tuple = _rlpList(
+            abi.encodePacked(
+                _rlpStr(abi.encodePacked(consensus)),
+                _rlpStr(abi.encodePacked(consensus)),
+                _rlpStr(abi.encodePacked(consensus)),
+                _rlpUint(100)
+            )
+        );
+        validatorSet.init(_rlpList(abi.encodePacked(_rlpUint(0), _rlpList(tuple))), 1);
+
+        (, bytes[] memory votes) = validatorSet.getLivingValidators();
+        assertEq(votes.length, 1, "vote address count");
+        assertEq(votes[0].length, 0, "a four-field payload carries no vote address");
+    }
+
+    /// @dev RLP string encoder for the hand-built payloads above. Bodies are short here
+    ///      (20 or 48 bytes), so only the single-byte-header form is needed.
+    function _rlpStr(bytes memory b) internal pure returns (bytes memory) {
+        require(b.length <= 55, "string too long for this helper");
+        return abi.encodePacked(bytes1(uint8(0x80 + b.length)), b);
+    }
+
+    /// @dev RLP integer encoder (canonical: no leading zeros, zero is the empty string).
+    function _rlpUint(uint256 v) internal pure returns (bytes memory) {
+        if (v == 0) return hex"80";
+        uint256 len;
+        uint256 t = v;
+        while (t != 0) {
+            len++;
+            t >>= 8;
+        }
+        bytes memory out = new bytes(1 + len);
+        out[0] = bytes1(uint8(0x80 + len));
+        for (uint256 i; i < len; ++i) {
+            out[1 + i] = bytes1(uint8(v >> (8 * (len - 1 - i))));
+        }
+        return out;
+    }
 
     /// @dev "pgp-devnet-validator-%02d" with zero padding, matching the Go generator.
     function _label(uint256 i) internal pure returns (string memory) {
